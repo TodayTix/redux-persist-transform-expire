@@ -13,8 +13,8 @@ const expireTransform = createExpirationTransform({
       default: {} // default data when expired
   },
   'reducer1' :{
-      expireSpan: 1000 * 2, // 5s
-      default: null // default data when expired
+      expireSpan: 1000 * 2,
+      default: null
   }
 });
 
