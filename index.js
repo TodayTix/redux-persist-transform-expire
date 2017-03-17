@@ -6,47 +6,43 @@ import traverse from 'traverse';
 
 const PERSIST_EXPIRE_DEFAULT_KEY = 'persistExpiresAt';
 
-function hasExpired(expireDate) {
-  return dateToUnix(expireDate) < dateToUnix(new Date());
-}
-
 function dateToUnix(date) {
   return +(date.getTime() / 1000).toFixed(0);
 }
 
-export default function createExpirationTransform(config) {
-  config = config || {};
-  config.expireKey = config.expireKey || PERSIST_EXPIRE_DEFAULT_KEY;
-  config.defaultState = config.defaultState || {};
-  const inbound = state => state;
-  const outbound = state => {
-    if (!state) {
-      return state;
-    }
-    const validState = traverse(state).map(function (reducerState) {
-      if (!reducerState || typeof reducerState !== 'object') {
-        return;
-      }
-      const reducerExpireAt = reducerState.hasOwnProperty(config.expireKey) ? reducerState[config.expireKey] ? reducerState[config.expireKey] : null : null;
-      if (!reducerExpireAt) {
-        return;
-      }
-      if (hasExpired(reducerExpireAt)) {
-        // assign each reducer default state when expired  
-        if (reducerState.expireDatas) {
-          for (let key in reducerState.expireDatas) {
-            const data = reducerState.expireDatas[key];
-            if (reducerState.hasOwnProperty(key)) {
-              reducerState[key] = data;
-            }
-          }
+function createExpirationTransform(expireDatas) {
+  expireDatas = expireDatas || {};
+  let stateMap = new Map();
+  const inbound = (state, key) => {
+    if ((state || typeof state === 'object') && expireDatas.hasOwnProperty(key)) {
+      // avoid first in from storage
+      if (stateMap.has(key)) {
+        // if immutable
+        if (typeof state.toJS === 'function') {
+          let newState = state.toJS();
+          newState.expireDate = new Date((new Date()).getTime() + expireDatas[key].expireSpan);
+          return newState;
         }
         else {
-          reducerState = config.defaultState;
+          state.expireDate = new Date((new Date()).getTime() + expireDatas[key].expireSpan);
+          return state;
         }
       }
-    });
-    return validState;
+      stateMap.set(key, true);
+    }
+    return state;
   };
-  return reduxPersist.createTransform(inbound, outbound);
+  const outbound = (state, key) => {
+    if (!state || typeof state !== 'object') {
+      return state;
+    }
+    if (state.expireDate && expireDatas.hasOwnProperty(key)) {
+      const data = expireDatas[key];
+      if (dateToUnix(new Date(state.expireDate)) < dateToUnix(new Date())) {
+        state = data.default;
+      }
+    }
+    return state;
+  };
+  return createTransform(inbound, outbound);
 }
