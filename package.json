@@ -4,8 +4,7 @@
   "description": "Add expiration to your persisted store",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "semistandard"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "redux",
@@ -16,16 +15,10 @@
   "author": "Gabriel Cebrian",
   "license": "MIT",
   "devDependencies": {
-    "expect.js": "^0.3.1",
-    "mocha": "^2.5.3",
-    "moment": "^2.13.0",
-    "redux-persist": "^3.2.2",
-    "semistandard": "^8.0.0"
+    "redux-persist": "^3.2.2"
   },
   "peerDependencies": {
     "redux-persist": ">=3.0"
   },
-  "dependencies": {
-    "traverse": "^0.6.6"
-  }
+  "dependencies": {}
 }

@@ -15,9 +15,7 @@ function createExpirationTransform(expireDatas) {
   let stateMap = new Map();
   const inbound = (state, key) => {
     if ((state || typeof state === 'object') && expireDatas.hasOwnProperty(key)) {
-      // avoid first in from storage
       if (stateMap.has(key)) {
-        // if immutable
         if (typeof state.toJS === 'function') {
           let newState = state.toJS();
           newState.expireDate = new Date((new Date()).getTime() + expireDatas[key].expireSpan);
@@ -25,21 +23,21 @@ function createExpirationTransform(expireDatas) {
         }
         else {
           state.expireDate = new Date((new Date()).getTime() + expireDatas[key].expireSpan);
-          return state;
         }
       }
-      stateMap.set(key, true);
+      else {
+        stateMap.set(key, true);
+      }
     }
     return state;
   };
   const outbound = (state, key) => {
-    if (!state || typeof state !== 'object') {
-      return state;
-    }
-    if (state.expireDate && expireDatas.hasOwnProperty(key)) {
-      const data = expireDatas[key];
-      if (dateToUnix(new Date(state.expireDate)) < dateToUnix(new Date())) {
-        state = data.default;
+    if ((state || typeof state === 'object') && expireDatas.hasOwnProperty(key)) {
+      if (state.expireDate) {
+        const data = expireDatas[key];
+        if (dateToUnix(new Date(state.expireDate)) < dateToUnix(new Date())) {
+          state = data.default;
+        }
       }
     }
     return state;
