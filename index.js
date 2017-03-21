@@ -1,6 +1,9 @@
 'use strict'
 
-import reduxPersist from 'redux-persist';
+import {
+  reduxPersist,
+  createTransform
+} from 'redux-persist';
 
 const PERSIST_EXPIRE_DEFAULT_KEY = 'persistExpiresAt';
 
