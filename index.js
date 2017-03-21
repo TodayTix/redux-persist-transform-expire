@@ -2,8 +2,6 @@
 
 import reduxPersist from 'redux-persist';
 
-import traverse from 'traverse';
-
 const PERSIST_EXPIRE_DEFAULT_KEY = 'persistExpiresAt';
 
 function dateToUnix(date) {
