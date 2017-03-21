@@ -8,7 +8,7 @@ function dateToUnix(date) {
   return +(date.getTime() / 1000).toFixed(0);
 }
 
-function createExpirationTransform(expireDatas) {
+export default function createExpirationTransform(expireDatas) {
   expireDatas = expireDatas || {};
   let stateMap = new Map();
   const inbound = (state, key) => {
